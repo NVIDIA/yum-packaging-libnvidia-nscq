@@ -11,6 +11,7 @@ URL:        http://nvidia.com
 Source:     %{pkg_folder}.tar.gz
 #AutoReq:    0
 
+Provides:   libnvidia-nscq
 Provides:   nscq%{SONAME} = %{so_api}
 Provides:   nscq-api = %{so_api}
 
@@ -18,9 +19,9 @@ Provides:   nscq-api = %{so_api}
 NVIDIA NVSwitch Configuration and Query (NSCQ) library provides a
 stable driver API used by DCGM for monitoring NVSwitch devices.
 
-%post -n libnvidia-nscq -p /sbin/ldconfig
+%post -n libnvidia-nscq-%{major} -p /sbin/ldconfig
 
-%postun -n libnvidia-nscq -p /sbin/ldconfig
+%postun -n libnvidia-nscq-%{major} -p /sbin/ldconfig
 
 %prep
 %setup -c
