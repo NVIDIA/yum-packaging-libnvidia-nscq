@@ -36,7 +36,6 @@ cp -R -a %{pkg_folder}/* %{buildroot}/%{_libdir}
 
 %files
 #%license LICENSE
-%dir %{_libdir}
 %{_libdir}/libnvidia-nscq.so
 %{_libdir}/libnvidia-nscq.so.1
 %{_libdir}/libnvidia-nscq.so.1.*
