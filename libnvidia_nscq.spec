@@ -32,9 +32,11 @@ URL:        http://nvidia.com
 Source:     %{pkg_folder}.tar.gz
 #AutoReq:    0
 
-Provides:   libnvidia-nscq
 Provides:   nscq%{SONAME} = %{so_api}
 Provides:   nscq-api = %{so_api}
+Provides:   libnvidia-nscq = %{version}
+Obsoletes:  libnvidia-nscq < %{version}
+Conflicts:  libnvidia-nscq
 
 %description
 NVIDIA NVSwitch Configuration and Query (NSCQ) library provides a
