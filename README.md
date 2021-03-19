@@ -19,9 +19,12 @@ NVIDIA NVSwitch Configuration and Query (NSCQ) library provides a stable driver 
 - [Prerequisites](#Prerequisites)
   * [Clone this git repository](#Clone-this-git-repository)
   * [Install build dependencies](#Install-build-dependencies)
+- [Building Manually](#Building-Manually)
 - [Related](#Related)
   * [Fabric Manager](#Fabric-Manager)
   * [NVIDIA driver](#NVIDIA-driver)
+- [See also](#See-also)
+  * [Debian](#Debian)
 - [Contributing](#Contributing)
 
 
@@ -33,7 +36,8 @@ This repo contains the `.spec` file used to build the following **RPM** packages
 > _note:_ `XXX` is the first `.` delimited field in the driver version, ex: `460` in `460.32.03`
 
 ```shell
-libnvidia-nscq-XXX
+- libnvidia-nscq-XXX
+> ex: libnvidia-nscq-460-460.32.03-1.x86_64.rpm
 ```
 
 
@@ -70,19 +74,74 @@ Supported branches: `main`
 git clone https://github.com/NVIDIA/yum-packaging-libnvidia-nscq
 ```
 
-### Download a NSCQ library tarball:
+### Download a NSCQ tarball:
 
-* TBD
+* https://developer.download.nvidia.com/compute/cuda/redist/libnvidia_nscq/
 
-  *ex:* libnvidia-nscq-460.32.03.tar.gz
+  *ex:* libnvidia_nscq-linux-x86_64-460.32.03.tar.gz
 
 ### Install build dependencies
 > *note:* these are only needed for building not installation
 
 ```shell
+# objdump
+yum install binutils
 # Packaging
 yum install rpm-build
 ```
+
+
+## Building Manually
+
+### Parse JSON to retrieve download URL
+```shell
+baseURL="https://developer.download.nvidia.com/compute/cuda/redist"
+curl -s $baseURL/redistrib_460.32.03.json | \
+jq -r '."libnvidia_nscq" | ."460.32.03" | ."linux-x86_64"' | \
+sed "s|^|$baseURL/|"
+```
+
+### Prepare build directory
+```shell
+cd yum-packaging-libnvidia-nscq
+mkdir SPECS SOURCES
+cp *.spec SPECS/
+cp ../libnvidia_nscq*.tar.gz SOURCES/
+```
+
+### Check API version
+```shell
+tar -tvf SOURCES/libnvidia_nscq*.tar.gz | \
+    grep ^l | awk '{print $(NF-2)}' | grep ".so." | \
+    sort -uVr | awk -F ".so." '{print $2}' | awk NR==1
+> 1.1
+```
+
+### Check SONAME
+```shell
+tar --strip-components=1 -xf ../libnvidia_nscq*.tar.gz libnvidia_nscq/libnvidia-nscq.so.[4-9][0-9][0-9]*
+objdump -p libnvidia-nscq.so.[4-9][0-9][0-9]* | grep SONAME | awk -F ".so." '{print $2}'
+> 1
+```
+
+### Generate .rpm packages
+```shell
+rpmbuild \
+    --define "%_topdir $(pwd)" \
+    --define "%version 460.32.03" \
+    --define "%branch 460" \
+    --define "%so_api 1.1" \
+    --define "%SONAME 1" \
+    --define "%_arch x86_64" \
+    --define "%_build_arch x86_64" \
+    --target=x86_64 \
+    -v -ba SPECS/*.spec
+
+cd RPMS/x86_64
+ls *.rpm
+```
+> _note:_ branch is the first `.` delimited field in the driver version, ex: `460` in `460.32.03`
+
 
 ## Related
 
@@ -95,6 +154,13 @@ yum install rpm-build
 
 - nvidia-driver
   * [https://github.com/NVIDIA/yum-packaging-nvidia-driver](https://github.com/NVIDIA/yum-packaging-nvidia-driver)
+
+
+## See also
+
+### Debian
+
+  * [https://github.com/NVIDIA/apt-packaging-libnvidia-nscq](https://github.com/NVIDIA/apt-packaging-libnvidia-nscq)
 
 
 ## Contributing
