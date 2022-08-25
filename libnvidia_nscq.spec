@@ -55,11 +55,11 @@ stable driver API used by DCGM for monitoring NVSwitch devices.
 export DONT_STRIP=1
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_libdir}
-cp -R -a %{pkg_folder}/* %{buildroot}/%{_libdir}
+mkdir -p %{buildroot}/%{_bindir}
+cp -R -a %{pkg_folder}/nscq-cli %{buildroot}/%{_bindir}
+cp -R -a %{pkg_folder}/*.so* %{buildroot}/%{_libdir}
 
 %files
 #%license LICENSE
-%{_libdir}/libnvidia-nscq.so
-%{_libdir}/libnvidia-nscq.so.1
-%{_libdir}/libnvidia-nscq.so.1.*
-%{_libdir}/libnvidia-nscq.so.*
+%{_libdir}/libnvidia-nscq.so*
+%{_bindir}/nscq-cli
