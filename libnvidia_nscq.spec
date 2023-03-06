@@ -23,13 +23,13 @@
 %global debug_package %{nil}
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-Name:       libnvidia-nscq-%{major}
+Name:       libnvidia-nscq-%{branch}
 Version:    %{version}
 Release:    1
 Summary:    NVSwitch Configuration and Query library
 License:    NVIDIA Proprietary
 URL:        http://nvidia.com
-Source:     %{pkg_folder}.tar.gz
+Source:     libnvidia_nscq-linux-%{_arch}-%{version}.tar.gz
 #AutoReq:    0
 
 Provides:   nscq%{SONAME} = %{so_api}
@@ -42,12 +42,12 @@ Conflicts:  libnvidia-nscq
 NVIDIA NVSwitch Configuration and Query (NSCQ) library provides a
 stable driver API used by DCGM for monitoring NVSwitch devices.
 
-%post -n libnvidia-nscq-%{major} -p /sbin/ldconfig
+%post -n libnvidia-nscq-%{branch} -p /sbin/ldconfig
 
-%postun -n libnvidia-nscq-%{major} -p /sbin/ldconfig
+%postun -n libnvidia-nscq-%{branch} -p /sbin/ldconfig
 
 %prep
-%setup -c
+%setup -q -n libnvidia_nscq
 
 #%build
 
