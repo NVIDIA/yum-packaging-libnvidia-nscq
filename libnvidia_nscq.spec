@@ -22,6 +22,7 @@
 %global _enable_debug_package 0
 %global debug_package %{nil}
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
+%global pkg_folder libnvidia_nscq-linux-%{_arch}-%{version}
 
 Name:       libnvidia-nscq-%{branch}
 Version:    %{version}
@@ -29,7 +30,7 @@ Release:    1
 Summary:    NVSwitch Configuration and Query library
 License:    NVIDIA Proprietary
 URL:        http://nvidia.com
-Source:     libnvidia_nscq-linux-%{_arch}-%{version}.tar.gz
+Source:     %{pkg_folder}.tar.gz
 #AutoReq:    0
 
 Provides:   nscq%{SONAME} = %{so_api}
@@ -47,7 +48,7 @@ stable driver API used by DCGM for monitoring NVSwitch devices.
 %postun -n libnvidia-nscq-%{branch} -p /sbin/ldconfig
 
 %prep
-%setup -q -n libnvidia_nscq
+%setup -c
 
 #%build
 
@@ -56,10 +57,14 @@ export DONT_STRIP=1
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_libdir}
 mkdir -p %{buildroot}/%{_bindir}
+mkdir -p %{buildroot}/%{_includedir}
+mv %{pkg_folder}/EULA.txt LICENSE
 cp -R -a %{pkg_folder}/nscq-cli %{buildroot}/%{_bindir}
 cp -R -a %{pkg_folder}/*.so* %{buildroot}/%{_libdir}
+cp -R -a %{pkg_folder}/nscq-api %{buildroot}/%{_includedir}
 
 %files
-#%license LICENSE
+%license LICENSE
 %{_libdir}/libnvidia-nscq.so*
 %{_bindir}/nscq-cli
+%{_includedir}/nscq-api
