@@ -33,17 +33,17 @@ NVIDIA NVSwitch Configuration and Query (NSCQ) library provides a stable driver 
 This repo contains the `.spec` file used to build the following **RPM** packages:
 
 
-> _note:_ `XXX` is the first `.` delimited field in the driver version, ex: `460` in `460.32.03`
+> _note:_ `XXX` is the first `.` delimited field in the driver version, ex: `525` in `525.85.12`
 
 ```shell
 - libnvidia-nscq-XXX
-> ex: libnvidia-nscq-460-460.32.03-1.x86_64.rpm
+> ex: libnvidia-nscq-525-525.85.12-1.x86_64.rpm
 ```
 
 
 ## Installation
 
-* **RHEL8** or **Fedora** streams: `XXX`, `XXX-dkms`, `latest`, and `latest-dkms`
+* **RHEL8**, **RHEL9**, or **Fedora** streams: `XXX`, `XXX-dkms`, `latest`, and `latest-dkms`
 
   The NvSwitch modularity profile (`fm`) installs all of the NVIDIA driver packages, as well as Fabric Manager and NCSQ
 
@@ -68,7 +68,7 @@ This repo contains the `.spec` file used to build the following **RPM** packages
 
 ### Clone this git repository:
 
-Supported branches: `main`
+Supported branches as described in the [NVIDIA Datacenter Drivers](https://docs.nvidia.com/datacenter/tesla/drivers/index.html#cuda-drivers) documentation.
 
 ```shell
 git clone https://github.com/NVIDIA/yum-packaging-libnvidia-nscq
@@ -76,9 +76,9 @@ git clone https://github.com/NVIDIA/yum-packaging-libnvidia-nscq
 
 ### Download a NSCQ tarball:
 
-* https://developer.download.nvidia.com/compute/cuda/redist/libnvidia_nscq/
+* https://developer.download.nvidia.com/compute/nvidia-driver/redist/libnvidia_nscq/
 
-  *ex:* libnvidia_nscq-linux-x86_64-460.32.03.tar.gz
+  *ex:* libnvidia_nscq-linux-x86_64-525.85.12-archive.tar.xz
 
 ### Install build dependencies
 > *note:* these are only needed for building not installation
@@ -93,12 +93,13 @@ yum install rpm-build
 
 ## Building Manually
 
-### Parse JSON to retrieve download URL
+### Download tarball via redistrib JSON
 ```shell
-baseURL="https://developer.download.nvidia.com/compute/cuda/redist"
-curl -s $baseURL/redistrib_460.32.03.json | \
-jq -r '."libnvidia_nscq" | ."460.32.03" | ."linux-x86_64"' | \
-sed "s|^|$baseURL/|"
+baseURL="https://developer.download.nvidia.com/compute/nvidia-driver/redist"
+downloadURL=$(curl -s $baseURL/redistrib_525.85.12.json | \
+jq -r '."libnvidia_nscq" | ."linux-x86_64" | ."relative_path"' | \
+sed "s|^|$baseURL/|")
+curl -O $downloadURL
 ```
 
 ### Prepare build directory
@@ -106,32 +107,33 @@ sed "s|^|$baseURL/|"
 cd yum-packaging-libnvidia-nscq
 mkdir SPECS SOURCES
 cp *.spec SPECS/
-cp ../libnvidia_nscq*.tar.gz SOURCES/
+cp ../libnvidia_nscq*.tar.xz SOURCES/
 ```
 
 ### Check API version
 ```shell
-tar -tvf SOURCES/libnvidia_nscq*.tar.gz | \
+tar -tvf SOURCES/libnvidia_nscq*.tar.xz | \
     grep ^l | awk '{print $(NF-2)}' | grep ".so." | \
     sort -uVr | awk -F ".so." '{print $2}' | awk NR==1
-> 1.1
+> 2.0
 ```
 
 ### Check SONAME
 ```shell
-tar --strip-components=1 -xf ../libnvidia_nscq*.tar.gz libnvidia_nscq/libnvidia-nscq.so.[4-9][0-9][0-9]*
-objdump -p libnvidia-nscq.so.[4-9][0-9][0-9]* | grep SONAME | awk -F ".so." '{print $2}'
-> 1
+tar -C SOURCES/ -xf SOURCES/libnvidia_nscq*.tar.xz
+objdump -p /dev/stdin < $(find SOURCES -type f -name "libnvidia-nscq.so.*") | \
+grep SONAME | awk -F ".so." '{print $2}'
+> 2
 ```
 
 ### Generate .rpm packages
 ```shell
 rpmbuild \
     --define "%_topdir $(pwd)" \
-    --define "%version 460.32.03" \
-    --define "%branch 460" \
-    --define "%so_api 1.1" \
-    --define "%SONAME 1" \
+    --define "%version 525.85.12" \
+    --define "%branch 525" \
+    --define "%so_api 2.0" \
+    --define "%SONAME 2" \
     --define "%_arch x86_64" \
     --define "%_build_arch x86_64" \
     --target=x86_64 \
@@ -140,7 +142,7 @@ rpmbuild \
 cd RPMS/x86_64
 ls *.rpm
 ```
-> _note:_ branch is the first `.` delimited field in the driver version, ex: `460` in `460.32.03`
+> _note:_ branch is the first `.` delimited field in the driver version, ex: `525` in `525.85.12`
 
 
 ## Related
