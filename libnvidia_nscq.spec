@@ -19,10 +19,11 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+%define tar_arch %{?_repo_arch}%{?!_repo_arch:%{_arch}}
 %global _enable_debug_package 0
 %global debug_package %{nil}
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
-%global pkg_folder libnvidia_nscq-linux-%{_arch}-%{version}-archive
+%global pkg_folder libnvidia_nscq-linux-%{tar_arch}-%{version}-archive
 
 Name:       libnvidia-nscq-%{branch}
 Version:    %{version}

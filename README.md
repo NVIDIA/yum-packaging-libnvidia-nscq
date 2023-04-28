@@ -136,6 +136,7 @@ rpmbuild \
     --define "%SONAME 2" \
     --define "%_arch x86_64" \
     --define "%_build_arch x86_64" \
+    --define "%_repo_arch x86_64" \
     --target=x86_64 \
     -v -ba SPECS/*.spec
 
@@ -143,6 +144,7 @@ cd RPMS/x86_64
 ls *.rpm
 ```
 > _note:_ branch is the first `.` delimited field in the driver version, ex: `525` in `525.85.12`
+> _note:_ for arm64/aarch64 set `_build_arch` to `aarch64` and `_repo_arch` to `sbsa`
 
 
 ## Related
