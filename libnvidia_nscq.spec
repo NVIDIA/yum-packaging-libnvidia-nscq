@@ -34,7 +34,6 @@ Source:     %{pkg_folder}.tar.xz
 #AutoReq:    0
 
 Provides:   nscq%{SONAME} = %{so_api}
-Provides:   nscq-api = %{so_api}
 Provides:   libnvidia-nscq = %{version}
 Obsoletes:  libnvidia-nscq < %{version}
 Conflicts:  libnvidia-nscq
@@ -56,14 +55,8 @@ stable driver API used by DCGM for monitoring NVSwitch devices.
 export DONT_STRIP=1
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_libdir}
-mkdir -p %{buildroot}/%{_bindir}
-mkdir -p %{buildroot}/%{_includedir}
-cp -R -a %{pkg_folder}/bin/* %{buildroot}/%{_bindir}
 cp -R -a %{pkg_folder}/lib/* %{buildroot}/%{_libdir}
-cp -R -a %{pkg_folder}/include/* %{buildroot}/%{_includedir}
 
 %files
 %license %{pkg_folder}/LICENSE
 %{_libdir}/libnvidia-nscq.so*
-%{_bindir}/nscq-cli
-%{_includedir}/nscq-api
